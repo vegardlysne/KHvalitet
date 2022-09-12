@@ -17,4 +17,5 @@ dfold <- "F:/Forskningsprosjekter/PDB 2455 - Helseprofiler og til_/PRODUKSJON/PR
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, cache = TRUE)
+source("https://raw.githubusercontent.com/vegardlysne/KHvalitet/main/R/functions.R?token=GHSAT0AAAAAABX4YJDR35PR5HUOUROIRREKYY7CHGA")
 ```
