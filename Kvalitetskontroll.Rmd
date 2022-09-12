@@ -2,21 +2,117 @@
 title: "Kvalitetskontroll"
 author: "Vegard"
 date: "2022-09-12"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
-```{r setup, include=FALSE}
+
+TODO:
+- legge inn sjekk av argumenter og informative feilmeldinger i funksjonene
+- 
+
+
+
+
+```{r setup, include=FALSE, message = F}
 knitr::opts_chunk$set(echo = FALSE, cache = TRUE)
-source("https://raw.githubusercontent.com/vegardlysne/KHvalitet/main/R/setup.R?token=GHSAT0AAAAAABX4YJDRUZV5XD753H4RDGAOYY7CUCQ")
-source("https://raw.githubusercontent.com/vegardlysne/KHvalitet/main/R/functions.R?token=GHSAT0AAAAAABX4YJDR35PR5HUOUROIRREKYY7CHGA")
+
+getOption("encoding")
+source("https://raw.githubusercontent.com/vegardlysne/KHvalitet/main/R/setup.R")
+source("https://raw.githubusercontent.com/vegardlysne/KHvalitet/main/R/functions.R")
 ```
 
 # INPUT
 
-Definer sti til ny KUBE som skal kontrolleres, og gammel KUBE som brukes som sammenligningsgrunnlag for deler av kvalitetskontrollen. 
-```{r}
-dfnew <- "F:/Forskningsprosjekter/PDB 2455 - Helseprofiler og til_/PRODUKSJON/PRODUKTER/KUBER/KOMMUNEHELSA/DATERT/csv/KUHR_2022-09-01-09-03.csv"
-dfold <- "F:/Forskningsprosjekter/PDB 2455 - Helseprofiler og til_/PRODUKSJON/PRODUKTER/KUBER/KOMMUNEHELSA/KH2022NESSTAR/KUHR_2022-02-09-17-50.csv"
+- Fyll inn sti til ny KUBE som skal kontrolleres (dfnew), og gammel KUBE (dfold) som brukes som sammenligningsgrunnlag for deler av kvalitetskontrollen. 
+- Definer:
+    - **Standarddimensjoner**: Alle standarddimensjoner som finnes i kuben
+    - **Eventuelle ekstradimensjoner** (dersom ingen, skal det stå NULL)
+    - **Prikkevariabel**: Hvilket måltall er det prikket på?
+    - **Prikkegrense**: Hva er grensen for det som skal være prikket?
+    - **Sammenligningsvariabel**: Hvilken variabel som skal brukes for å se om kommuner summerer til fylke, og fylke summerer til land
+- Kjør deretter hele kodechunken for å lese inn datafilene
 
+```{r include=F}
+dfny <- "F:/Forskningsprosjekter/PDB 2455 - Helseprofiler og til_/PRODUKSJON/PRODUKTER/KUBER/KOMMUNEHELSA/DATERT/csv/KUHR_2022-09-01-09-03.csv"
+dfgammel <- "F:/Forskningsprosjekter/PDB 2455 - Helseprofiler og til_/PRODUKSJON/PRODUKTER/KUBER/KOMMUNEHELSA/KH2022NESSTAR/KUHR_2022-02-09-17-50.csv"
 
+standarddimensjoner <- c("GEO", "AAR", "KJONN", "ALDER")
+ekstradimensjoner <- c("KODEGRUPPE") # Hvis ingen, sett til NULL 
+prikkevariabel <- "sumTELLER"
+prikkegrense <- 8
+sammenligningsvariabel <- "TELLER"
+
+dfny <- fread(dfny)
+dfgammel <- fread(dfgammel)
 ```
 
+# Se på data
+
+- Disse kodene kan brukes for å se på de to datafilene. 
+- Nyttig for å dobbeltsjekke input av ekstradim, prikkevariabel, osv. 
+- Bare for interaktiv bruk
+
+```{r include = F, eval = F}
+# Scroll gjennom datasettet
+dfnew
+dfold
+
+# Liste opp variabelnavn
+names(dfnew)
+
+# Oppsummering av innholdet i kubene
+summary(dfnew)
+summary(dfold)
+```
+
+# 1. Sammenligning av nivåer for dimensjoner
+
+- Dimensjoner definert under INPUT som standarddimensjoner og ekstradimensjoner sjekkes her.
+- Output: 
+    - Antallet nivåer i dimensjonen (ny KUBE)
+    - Nye nivåer, som ikke fantes i forrige KUBE
+    - Utgåtte nivåer, som fantes i forrige KUBE men ikke i den nye. **NB: Skulle disse vært her?**
+
+```{r}
+CompareDims()
+```
+# 2. Sammenligne antall prikker 
+- Funksjonen kalkulerer antall prikker i ny og gammel KUBE
+- Output er en tabell med antall prikker total og gruppert på type SPVFLAGG og `ekstradimensjoner` definert under INPUT
+- Tabellen oppgir absolutt og relativ forskjell sammenlignet med gammel KUBE innad i hver gruppering
+```{r message = F}
+ComparePrikk()
+```
+
+# 3. Sjekk om alle verdier under prikkegrense er prikket
+
+- **Prikkevariabel** og **prikkegrense** er definert øverst i dokumentet, under INPUT
+- Dersom alle verdier lik eller under prikkegrense i valgte dimensjon er prikket, bekreftes dette
+- Dersom noen verdier er lik eller under prikkegrense, printes alle aktuelle rader fra ny KUBE for inspeksjon
+
+```{r}
+CheckPrikk()
+```
+# 4. Sjekke om sum av fylker blir land
+
+- **sammenligningsvariabel** og **ekstradimensjoner** er definert i INPUT
+- Summerer sammenligningsvariabelen for hver undergruppe av ekstradimensjonen(e) for fylker og landet. 
+- Beregner absolutt (land - fylke) og relativ (land / fylke) forskjell. 
+- Rangerer output på synkende relativ forskjell, disse bør være så nær 1 som mulig. Ved perfekt samsvar vil relativ være 1.0 
+
+
+###TODO: Gi mulighet for å gruppere også på utvalgte standarddimensjoner.
+
+```{r}
+CompareLandFylke()
+```
+
+
+# 5.
+
+
+# 6. 
+
+
+# 7. 

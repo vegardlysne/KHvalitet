@@ -2,8 +2,8 @@
 #' 
 #' Detects all existing levels of selected dimension in the new KUBE, and compares towards a previous KUBE. The total number of levels, all new or expired levels, and a list of all existing levels in the new KUBE are listed in the output. 
 #'
-#' @param data1 new KUBE, defaults to dfnew
-#' @param data2 old KUBE, defaults do dfold
+#' @param data1 new KUBE, defaults to dfny
+#' @param data2 old KUBE, defaults do dfgammel
 #' @param dim Dimension you want to check
 #'
 #' @return a list. If no new or expired columns are detected, these elements will return "none". 
@@ -15,14 +15,16 @@
 #' CompareDim(dim = KJONN)
 #' CompareDim(dim = ALDER)
 #' CompareDim(dim = YTELSE)
-CompareDim <- function(data1 = dfnew, data2 = dfold, dim){
+CompareDim <- function(data1 = dfny, 
+                       data2 = dfgammel, 
+                       dim = NULL){
   
   .levelsnew <- data1 %>% 
-    pull({{dim}}) %>% 
+    pull(dim) %>% 
     unique()
   
   .levelsold <- data2 %>% 
-    pull({{dim}}) %>% 
+    pull(dim) %>% 
     unique()
   
   .length <- length(.levelsnew)
@@ -39,18 +41,33 @@ CompareDim <- function(data1 = dfnew, data2 = dfold, dim){
                       str_c(.expdims, collapse = ", "),
                       "none")
   
-  list("N levels (new KUBE)" = .length, 
-       "New levels (in new KUBE, not in old KUBE)" = newlevels, 
-       "Expired levels (in old KUBE, not in new KUBE)" = explevels, 
-       "All levels (new KUBE)" = all)
+  tibble("Dimensjon" = dim,
+         "N levels" = .length,
+         "New levels" = newlevels,
+         "Expired levels" = explevels)
 }
+
+#' CompareDims
+#' 
+#' Wrapper around `CompareDim`, to print results for several dims simultaneously
+#'
+#' @param dims 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+CompareDims <- function(dims = c(standarddimensjoner, ekstradimensjoner)){
+  map_df(dims, ~CompareDim(dim = .x))
+}
+
 
 #' ComparePrikk
 #' 
 #' Calculate the number of censored observations in the new and old KUBE, and calculate the absolute and relative difference. Results can be further grouped by an additional dimension. 
 #'
-#' @param data1 new KUBE, defaults to dfnew set in INPUT
-#' @param data2 old KUBE, defaults to dfold set in INPUT
+#' @param data1 new KUBE, defaults to dfny set in INPUT
+#' @param data2 old KUBE, defaults to dfgammel set in INPUT
 #' @param groupdim dimension to group output by
 #'
 #' @return a table containing the number of flagged rows in the new and old KUBE, and the absolute and relative difference, grouped by type of SPVFLAGG and an additional dimension (optional)
@@ -58,51 +75,39 @@ CompareDim <- function(data1 = dfnew, data2 = dfold, dim){
 #'
 #' @examples
 #' ComparePrikk(groupdim = ALDER)
-ComparePrikk <- function(data1 = dfnew, data2 = dfold, groupdim = NULL){
+ComparePrikk <- function(data1 = dfny, 
+                         data2 = dfgammel, 
+                         groupdim = ekstradimensjoner){
   
-  #bind_rows(
   full_join(
     data1 %>% 
-      group_by(SPVFLAGG, {{groupdim}}) %>% 
+      group_by(across(c(SPVFLAGG, groupdim))) %>% 
       summarise(n_new = n(), .groups = "drop"),
     data2 %>% 
-      group_by(SPVFLAGG, {{groupdim}}) %>% 
+      group_by(across(c(SPVFLAGG, groupdim))) %>% 
       summarise(n_old = n(), .groups = "drop")) %>% 
     replace_na(list(n_new = 0,
                     n_old = 0)) %>% 
-    mutate(across(SPVFLAGG, as.character)) %>% #,
-    #  full_join(
-    #    data1 %>% 
-    #      filter(SPVFLAGG > 0) %>% 
-    #      group_by({{groupdim}}) %>% 
-    #      summarise(n_new = n()),
-    #    data2 %>% 
-    #      filter(SPVFLAGG > 0) %>% 
-    #      group_by({{groupdim}}) %>% 
-    #      summarise(n_old = n())) %>% 
-    # Uten å spesifisere "by = " fungerer funksjonen når groupdim er angitt, men ikke uten. Da må by være = character(), men det fungerer ikke når groupdim er angitt. Kanskje dette må deles i to separate funksjoner, eventuelt kan total tas ut dersom ikke nødvendig. 
-    #      mutate(SPVFLAGG = "TOTAL")
-  #  )  %>% 
-  mutate(SPVFLAGG = case_when(SPVFLAGG == "0" ~ "No flag", 
-                              TRUE ~ SPVFLAGG),
-         absolute = n_new - n_old,
-         absolute = case_when(absolute == 0 ~ "Identical",
-                              absolute > 0 ~ paste0("+ ", absolute),
-                              absolute < 0 ~ paste0("- ", abs(absolute))),
-         relative = round((n_new/n_old - 1)*100,1),
-         relative = case_when(relative == Inf ~ "Cannot be estimated",
-                              relative == 0 ~ "Identical", 
-                              relative > 0 ~ paste0("+ ", relative, " %"),
-                              relative < 0 ~ paste0("- ", abs(relative), " %"))
-  )
-  
+    mutate(across(SPVFLAGG, as.character),
+           SPVFLAGG = case_when(SPVFLAGG == "0" ~ "No flag", 
+                                TRUE ~ SPVFLAGG),
+           absolute = n_new - n_old,
+           absolute = case_when(absolute == 0 ~ "Identical",
+                                absolute > 0 ~ paste0("+ ", absolute),
+                                absolute < 0 ~ paste0("- ", abs(absolute))),
+           relative = round((n_new/n_old - 1)*100,1),
+           relative = case_when(relative == Inf ~ "Cannot be estimated",
+                                relative == 0 ~ "Identical", 
+                                relative > 0 ~ paste0("+ ", relative, " %"),
+                                relative < 0 ~ paste0("- ", abs(relative), " %"))
+    )
 }
 
 #' CheckPrikk
 #' 
 #' Check if all values below the censoring limit has been removed. If ok, the function returns a confirmation. If any number below the limit is detected, all rows containing unacceptable values are returned for inspection. 
 #'
-#' @param data1 New KUBE, defaults to dfnew 
+#' @param data1 New KUBE, defaults to dfny 
 #' @param dim Dimension you want to check, defaults to sumTELLER
 #' @param limit Censor limit, the highest unacceptable value of dim. Defaults to `prikkegrense`, defined in input section of the Rmarkdown file. 
 #'
@@ -110,11 +115,11 @@ ComparePrikk <- function(data1 = dfnew, data2 = dfold, groupdim = NULL){
 #' @export
 #'
 #' @examples
-CheckPrikk <- function(data1 = dfnew,
-                       dim = sumTELLER, 
+CheckPrikk <- function(data1 = dfny,
+                       dim = prikkevariabel, 
                        limit = prikkegrense){
-  filtered <- data1 %>%
-    filter({{dim}} <= {{limit}})
+  
+  filtered <- data1[data1[[dim]] <= limit]
   
   ifelse(nrow(filtered) == 0,
          result <- "No values < limit",
@@ -127,26 +132,30 @@ CheckPrikk <- function(data1 = dfnew,
 #' 
 #' 
 #'
-#' @param data1 new KUBE, defaults to dfnew set in INPUT
+#' @param data1 new KUBE, defaults to dfny set in INPUT
 #' @param ... dimension(s) to group output by
 #'
 #' @return
 #' @export
 #'
 #' @examples
-CompareLandFylke <- function(data1 = dfnew, ...){
+CompareLandFylke <- function(data1 = dfny, groupdim = ekstradimensjoner, compare = sammenligningsvariabel){
+  
+  
+  
   data1 %>% 
     mutate(geolevel = case_when(GEO == 0 ~ "Land",
                                 GEO < 100 ~ "Fylke",
                                 GEO < 10000 ~ "Kommune",
                                 TRUE ~ "Bydel")) %>% 
     filter(geolevel %in% c("Land", "Fylke")) %>% 
-    group_by(geolevel, ...) %>% 
-    summarise(sum = sum(sumTELLER, na.rm = T), .groups = "drop") %>% 
+    group_by(across(c(geolevel, groupdim))) %>% 
+    summarise(sum = sum(.data[[compare]], na.rm = T), .groups = "drop") %>% 
     pivot_wider(names_from = geolevel, 
                 values_from = sum) %>% 
     mutate(absolute = Land-Fylke,
-           relative = Land/Fylke)
+           relative = Land/Fylke) %>% 
+    arrange(desc(relative))
 }
 
 #' CompareBydelKommune
@@ -158,7 +167,7 @@ CompareLandFylke <- function(data1 = dfnew, ...){
 #' @export
 #'
 #' @examples
-CompareBydelKommune <- function(data1 = dfnew, ...) {
+CompareBydelKommune <- function(data1 = dfny, ...) {
   data1 %>% 
     mutate(geolevel = case_when(GEO == 0 ~ "Land",
                                 GEO < 100 ~ "Fylke",
