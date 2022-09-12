@@ -1,0 +1,20 @@
+---
+title: "Kvalitetskontroll"
+author: "Vegard"
+date: "2022-09-12"
+output: html_document
+---
+
+# INPUT
+
+Definer sti til ny KUBE som skal kontrolleres, og gammel KUBE som brukes som sammenligningsgrunnlag for deler av kvalitetskontrollen. 
+```{r}
+dfnew <- "F:/Forskningsprosjekter/PDB 2455 - Helseprofiler og til_/PRODUKSJON/PRODUKTER/KUBER/KOMMUNEHELSA/DATERT/csv/KUHR_2022-09-01-09-03.csv"
+dfold <- "F:/Forskningsprosjekter/PDB 2455 - Helseprofiler og til_/PRODUKSJON/PRODUKTER/KUBER/KOMMUNEHELSA/KH2022NESSTAR/KUHR_2022-02-09-17-50.csv"
+
+
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, cache = TRUE)
+```
