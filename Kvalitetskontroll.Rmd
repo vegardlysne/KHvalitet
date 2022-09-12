@@ -4,6 +4,11 @@ author: "Vegard"
 date: "2022-09-12"
 output: html_document
 ---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, cache = TRUE)
+source("https://raw.githubusercontent.com/vegardlysne/KHvalitet/main/R/setup.R?token=GHSAT0AAAAAABX4YJDRUZV5XD753H4RDGAOYY7CUCQ")
+source("https://raw.githubusercontent.com/vegardlysne/KHvalitet/main/R/functions.R?token=GHSAT0AAAAAABX4YJDR35PR5HUOUROIRREKYY7CHGA")
+```
 
 # INPUT
 
@@ -15,7 +20,3 @@ dfold <- "F:/Forskningsprosjekter/PDB 2455 - Helseprofiler og til_/PRODUKSJON/PR
 
 ```
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, cache = TRUE)
-source("https://raw.githubusercontent.com/vegardlysne/KHvalitet/main/R/functions.R?token=GHSAT0AAAAAABX4YJDR35PR5HUOUROIRREKYY7CHGA")
-```
