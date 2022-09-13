@@ -41,7 +41,7 @@ CompareDim <- function(data1 = dfny,
                       str_c(.expdims, collapse = ", "),
                       "none")
   
-  tibble("Dimensjon" = dim,
+  tibble("Dimension" = dim,
          "N levels" = .length,
          "New levels" = newlevels,
          "Expired levels" = explevels)
@@ -51,9 +51,9 @@ CompareDim <- function(data1 = dfny,
 #' 
 #' Wrapper around `CompareDim`, to print results for several dims simultaneously
 #'
-#' @param dims 
+#' @param dims Character vector of dimensions to compare
 #'
-#' @return
+#' @return table with 4 columns: Dimension, N levels, New levels, Expired levels, with one row per input dimension
 #' @export
 #'
 #' @examples

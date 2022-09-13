@@ -6,13 +6,15 @@ lang: nb
 format: 
   html:
     df-print: kable
+execute: 
+  cache: true
 ---
 
 # Kvalitetskontroll
 
 TODO
 
--   nederst: var alt ok, klikk her: kopierer filen over i NESTTAR-mappe klar for publisering. M? legge inn ?rstall i input for ? finne riktig mappe.
+-   nederst: var alt ok, klikk her: kopierer filen over i NESTTAR-mappe klar for publisering. Må legge inn årstall i input for å finne riktig mappe.
 -   Lage kvalkontroll del 2 for plotting?
 -   Lage mappesystem for lagring av plott
 
@@ -34,12 +36,12 @@ TODO
 [**Definer:**]{.underline}
 
 -   **Standarddimensjoner**: Alle standarddimensjoner som finnes i kuben
--   **Eventuelle ekstradimensjoner** (dersom ingen, skal det st? `NULL`)
--   **Prikkevariabel**: Hvilket m?ltall er det prikket p??
--   **Prikkegrense**: Hva er grensen for det som skal v?re prikket?
--   **Sammenligningsvariabel**: Hvilken variabel som skal brukes for ? se om kommuner summerer til fylke, og fylke summerer til land
+-   **Eventuelle ekstradimensjoner** (dersom ingen, skal det stå `NULL`)
+-   **Prikkevariabel**: Hvilket måtall er det prikket på?
+-   **Prikkegrense**: Hva er grensen for det som skal være prikket?
+-   **Sammenligningsvariabel**: Hvilken variabel som skal brukes for å se om kommuner summerer til fylke, og fylke summerer til land
 
-Kj?r deretter hele kodechunken for ? lese inn datafilene
+Kjør deretter hele kodechunken for å lese inn datafilene
 
 ```{r}
 #| include: false
@@ -60,8 +62,8 @@ dfgammel <- fread(dfgammel)
 
 ## Se p? data
 
--   Disse kodene kan brukes for ? se p? de to datafilene.
--   Nyttig for ? dobbeltsjekke input av ekstradim, prikkevariabel, osv.
+-   Disse kodene kan brukes for å se på de to datafilene.
+-   Nyttig for å dobbeltsjekke input av ekstradim, prikkevariabel, osv.
 -   Bare for interaktiv bruk
 
 ```{r}
