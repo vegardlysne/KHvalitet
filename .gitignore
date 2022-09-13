@@ -5,6 +5,7 @@
 
 # Output files
 *.html
+*/_files/libs
 
 # History files
 .Rapp.history
