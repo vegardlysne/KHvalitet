@@ -9,22 +9,28 @@ format:
 
 # Kvalitetskontroll
 
+TODO
+
+-   nederst: var alt ok, klikk her: kopierer filen over i NESTTAR-mappe klar for publisering. Må legge inn årstall i input for å finne riktig mappe.
+-   Lage kvalkontroll del 2 for plotting?
+-   Lage mappesystem for lagring av plott
+
 ```{r}
 #| include: false
 #| message: false
 
-# source("https://raw.githubusercontent.com/vegardlysne/KHvalitet/main/R/setup.R")
-# source("https://raw.githubusercontent.com/vegardlysne/KHvalitet/main/R/functions.R")
+ source("https://raw.githubusercontent.com/vegardlysne/KHvalitet/main/R/setup.R")
+ source("https://raw.githubusercontent.com/vegardlysne/KHvalitet/main/R/functions.R")
 
-source("./R/setup.R")
-source("./R/functions.R")
+#source("./R/setup.R")
+#source("./R/functions.R")
 ```
 
 ## Input
 
 -   Fyll inn sti til ny KUBE som skal kontrolleres (dfny), og gammel KUBE (dfgammel) som brukes som sammenligningsgrunnlag for deler av kvalitetskontrollen.
 
-Definer:
+[**Definer:**]{.underline}
 
 -   **Standarddimensjoner**: Alle standarddimensjoner som finnes i kuben
 -   **Eventuelle ekstradimensjoner** (dersom ingen, skal det stå `NULL`)
