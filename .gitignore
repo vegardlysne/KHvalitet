@@ -5,7 +5,7 @@
 
 # Output files
 *.html
-*/_files/libs
+
 
 # History files
 .Rapp.history
@@ -15,6 +15,7 @@
 
 # RStudio files
 .Rproj.user/
+*/_files/
 # produced vignettes
 vignettes/*.html
 vignettes/*.pdf
