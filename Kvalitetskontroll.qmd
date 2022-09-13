@@ -11,7 +11,7 @@ format:
 
 TODO
 
--   nederst: var alt ok, klikk her: kopierer filen over i NESTTAR-mappe klar for publisering. MÃ¥ legge inn Ã¥rstall i input for Ã¥ finne riktig mappe.
+-   nederst: var alt ok, klikk her: kopierer filen over i NESTTAR-mappe klar for publisering. Må legge inn årstall i input for å finne riktig mappe.
 -   Lage kvalkontroll del 2 for plotting?
 -   Lage mappesystem for lagring av plott
 
@@ -33,12 +33,12 @@ TODO
 [**Definer:**]{.underline}
 
 -   **Standarddimensjoner**: Alle standarddimensjoner som finnes i kuben
--   **Eventuelle ekstradimensjoner** (dersom ingen, skal det stÃ¥ `NULL`)
--   **Prikkevariabel**: Hvilket mÃ¥ltall er det prikket pÃ¥?
--   **Prikkegrense**: Hva er grensen for det som skal vÃ¦re prikket?
--   **Sammenligningsvariabel**: Hvilken variabel som skal brukes for Ã¥ se om kommuner summerer til fylke, og fylke summerer til land
+-   **Eventuelle ekstradimensjoner** (dersom ingen, skal det stå `NULL`)
+-   **Prikkevariabel**: Hvilket måltall er det prikket på?
+-   **Prikkegrense**: Hva er grensen for det som skal være prikket?
+-   **Sammenligningsvariabel**: Hvilken variabel som skal brukes for å se om kommuner summerer til fylke, og fylke summerer til land
 
-KjÃ¸r deretter hele kodechunken for Ã¥ lese inn datafilene
+Kjør deretter hele kodechunken for å lese inn datafilene
 
 ```{r}
 #| include: false
@@ -52,15 +52,15 @@ prikkevariabel <- "sumTELLER"
 prikkegrense <- 8
 sammenligningsvariabel <- "TELLER"
 
-#-----IKKE GJÃ˜R NOE UNDER HER-----
+#-----IKKE GJøR NOE UNDER HER-----
 dfny <- fread(dfny)
 dfgammel <- fread(dfgammel)
 ```
 
 ## Se pÃ¥ data
 
--   Disse kodene kan brukes for Ã¥ se pÃ¥ de to datafilene.
--   Nyttig for Ã¥ dobbeltsjekke input av ekstradim, prikkevariabel, osv.
+-   Disse kodene kan brukes for å se på de to datafilene.
+-   Nyttig for å dobbeltsjekke input av ekstradim, prikkevariabel, osv.
 -   Bare for interaktiv bruk
 
 ```{r}
@@ -80,15 +80,15 @@ summary(dfnew)
 summary(dfold)
 ```
 
-# 1. Sammenligning av nivÃ¥er for dimensjoner
+# 1. Sammenligning av nivåer for dimensjoner
 
 -   Dimensjoner definert under INPUT som standarddimensjoner og ekstradimensjoner sjekkes her.
 
 [**Output:**]{.underline}
 
--   Antallet nivÃ¥er i dimensjonen (ny KUBE)
--   Nye nivÃ¥er, som ikke fantes i forrige KUBE
--   UtgÃ¥tte nivÃ¥er, som fantes i forrige KUBE men ikke i den nye. **NB: Skulle disse vÃ¦rt her?**
+-   Antallet nivåer i dimensjonen (ny KUBE)
+-   Nye nivåer, som ikke fantes i forrige KUBE
+-   Utgåtte nivåer, som fantes i forrige KUBE men ikke i den nye. **NB: Skulle disse vært her?**
 
 ```{r}
 #| message: false
@@ -98,16 +98,16 @@ CompareDims()
 # 2. Sammenligne antall prikker
 
 -   Funksjonen kalkulerer antall prikker i ny og gammel KUBE
--   Output er en tabell med antall prikker total og gruppert pÃ¥ type SPVFLAGG og **ekstradimensjoner** definert under INPUT
+-   Output er en tabell med antall prikker total og gruppert på type SPVFLAGG og **ekstradimensjoner** definert under INPUT
 -   Tabellen oppgir absolutt og relativ forskjell sammenlignet med gammel KUBE innad i hver gruppering
 
 ```{r}
-ComparePrikk() %>% data.table()
+ComparePrikk()
 ```
 
 # 3. Sjekk om alle verdier under prikkegrense er prikket
 
--   **Prikkevariabel** og **prikkegrense** er definert Ã¸verst i dokumentet, under INPUT
+-   **Prikkevariabel** og **prikkegrense** er definert øverst i dokumentet, under INPUT
 -   Dersom alle verdier lik eller under prikkegrense i valgte dimensjon er prikket, bekreftes dette
 -   Dersom noen verdier er lik eller under prikkegrense, printes alle aktuelle rader fra ny KUBE for inspeksjon
 
@@ -120,9 +120,9 @@ CheckPrikk()
 -   **Sammenligningsvariabel** og **ekstradimensjoner** er definert i INPUT
 -   Summerer sammenligningsvariabelen for hver undergruppe av ekstradimensjonen(e) for fylker og landet.
 -   Beregner absolutt (land - fylke) og relativ (land / fylke) forskjell.
--   Rangerer output pÃ¥ synkende relativ forskjell, disse bÃ¸r vÃ¦re sÃ¥ nÃ¦r 1 som mulig. Ved perfekt samsvar vil relativ vÃ¦re 1.0
+-   Rangerer output på synkende relativ forskjell, disse bø være så nær 1 som mulig. Ved perfekt samsvar vil relativ være 1.0
 
-\### TODO: Gi mulighet for Ã¥ gruppere ogsÃ¥ pÃ¥ utvalgte standarddimensjoner.
+\### TODO: Gi mulighet for å gruppere også på utvalgte standarddimensjoner.
 
 ```{r}
 CompareLandFylke()
@@ -132,8 +132,8 @@ CompareLandFylke()
 
 -   **Sammenligningsvariabel** og **ekstradimensjoner** er definert i INPUT
 -   Summerer sammenligningsvariabelen for hver undergruppe av ekstradimensjonen(e) for fylker og landet.
--   Beregner absolutt (land - fylke) og relativ (land / fylke) forskjell.
--   Rangerer output pÃ¥ synkende relativ forskjell, disse bÃ¸r vÃ¦re sÃ¥ nÃ¦r 1 som mulig. Ved perfekt samsvar vil relativ vÃ¦re 1.0
+-   Beregner absolutt (Kommune - Bydel) og relativ (Kommune / bydel) forskjell.
+-   Rangerer output på synkende relativ forskjell, disse bø være så nær 1 som mulig. Ved perfekt samsvar vil relativ være 1.0
 
 ```{r}
 CompareBydelKommune()
