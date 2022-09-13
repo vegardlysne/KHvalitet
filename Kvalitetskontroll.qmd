@@ -57,7 +57,7 @@ dfny <- fread(dfny)
 dfgammel <- fread(dfgammel)
 ```
 
-## Se pÃ¥ data
+## Se på data
 
 -   Disse kodene kan brukes for å se på de to datafilene.
 -   Nyttig for å dobbeltsjekke input av ekstradim, prikkevariabel, osv.
