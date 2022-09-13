@@ -81,11 +81,12 @@ ComparePrikk <- function(data1 = dfny,
   
   full_join(
     data1 %>% 
-      group_by(across(c(SPVFLAGG, groupdim))) %>% 
+      group_by(across(c(SPVFLAGG, all_of(groupdim)))) %>% 
       summarise(n_new = n(), .groups = "drop"),
     data2 %>% 
-      group_by(across(c(SPVFLAGG, groupdim))) %>% 
-      summarise(n_old = n(), .groups = "drop")) %>% 
+      group_by(across(c(SPVFLAGG, all_of(groupdim)))) %>% 
+      summarise(n_old = n(), .groups = "drop"),
+    by = c("SPVFLAGG", all_of(groupdim))) %>% 
     replace_na(list(n_new = 0,
                     n_old = 0)) %>% 
     mutate(across(SPVFLAGG, as.character),
@@ -99,8 +100,8 @@ ComparePrikk <- function(data1 = dfny,
            relative = case_when(relative == Inf ~ "Cannot be estimated",
                                 relative == 0 ~ "Identical", 
                                 relative > 0 ~ paste0("+ ", relative, " %"),
-                                relative < 0 ~ paste0("- ", abs(relative), " %"))
-    )
+                                relative < 0 ~ paste0("- ", abs(relative), " %"))) 
+    
 }
 
 #' CheckPrikk
@@ -149,7 +150,7 @@ CompareLandFylke <- function(data1 = dfny, groupdim = ekstradimensjoner, compare
                                 GEO < 10000 ~ "Kommune",
                                 TRUE ~ "Bydel")) %>% 
     filter(geolevel %in% c("Land", "Fylke")) %>% 
-    group_by(across(c(geolevel, groupdim))) %>% 
+    group_by(across(c(geolevel, all_of(groupdim)))) %>% 
     summarise(sum = sum(.data[[compare]], na.rm = T), .groups = "drop") %>% 
     pivot_wider(names_from = geolevel, 
                 values_from = sum) %>% 
@@ -167,7 +168,7 @@ CompareLandFylke <- function(data1 = dfny, groupdim = ekstradimensjoner, compare
 #' @export
 #'
 #' @examples
-CompareBydelKommune <- function(data1 = dfny, ...) {
+CompareBydelKommune <- function(data1 = dfny, groupdim = ekstradimensjoner, compare = sammenligningsvariabel) {
   data1 %>% 
     mutate(geolevel = case_when(GEO == 0 ~ "Land",
                                 GEO < 100 ~ "Fylke",
@@ -179,8 +180,8 @@ CompareBydelKommune <- function(data1 = dfny, ...) {
                                str_detect(GEO, "^1103") ~ "Stavanger",
                                str_detect(GEO, "^4601") ~ "Bergen",
                                str_detect(GEO, "^5001") ~ "Trondheim")) %>% 
-    group_by(KOMMUNE, geolevel, ...) %>% 
-    summarise(sum = sum(sumTELLER, na.rm = T), .groups = "drop") %>% 
+    group_by(across(c(KOMMUNE, geolevel, all_of(groupdim)))) %>% 
+    summarise(sum = sum(.data[[compare]], na.rm = T), .groups = "drop") %>% 
     pivot_wider(names_from = geolevel, 
                 values_from = sum) %>% 
     mutate(absolute = Kommune-Bydel,
