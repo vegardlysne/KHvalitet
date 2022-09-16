@@ -2,8 +2,8 @@
 #' 
 #' Detects all existing levels of selected dimension in the new KUBE, and compares towards a previous KUBE. The total number of levels, all new or expired levels, and a list of all existing levels in the new KUBE are listed in the output. 
 #'
-#' @param data1 new KUBE, defaults to dfny
-#' @param data2 old KUBE, defaults do dfgammel
+#' @param data1 new KUBE, defaults to dfnew
+#' @param data2 old KUBE, defaults do dfold
 #' @param dim Dimension you want to check
 #'
 #' @return a list. If no new or expired columns are detected, these elements will return "none". 
@@ -15,8 +15,8 @@
 #' CompareDim(dim = KJONN)
 #' CompareDim(dim = ALDER)
 #' CompareDim(dim = YTELSE)
-CompareDim <- function(data1 = dfny, 
-                       data2 = dfgammel, 
+CompareDim <- function(data1 = dfnew, 
+                       data2 = dfold, 
                        dim = NULL){
   
   .levelsnew <- data1 %>% 
@@ -57,7 +57,7 @@ CompareDim <- function(data1 = dfny,
 #' @export
 #'
 #' @examples
-CompareDims <- function(dims = c(standarddimensjoner, ekstradimensjoner)){
+CompareDims <- function(dims = c(STANDARDdims, EXTRAdims)){
   map_df(dims, ~CompareDim(dim = .x))
 }
 
@@ -66,8 +66,8 @@ CompareDims <- function(dims = c(standarddimensjoner, ekstradimensjoner)){
 #' 
 #' Calculate the number of censored observations in the new and old KUBE, and calculate the absolute and relative difference. Results can be further grouped by an additional dimension. 
 #'
-#' @param data1 new KUBE, defaults to dfny set in INPUT
-#' @param data2 old KUBE, defaults to dfgammel set in INPUT
+#' @param data1 new KUBE, defaults to dfnew set in INPUT
+#' @param data2 old KUBE, defaults to dfold set in INPUT
 #' @param groupdim dimension to group output by
 #'
 #' @return a table containing the number of flagged rows in the new and old KUBE, and the absolute and relative difference, grouped by type of SPVFLAGG and an additional dimension (optional)
@@ -75,9 +75,9 @@ CompareDims <- function(dims = c(standarddimensjoner, ekstradimensjoner)){
 #'
 #' @examples
 #' ComparePrikk(groupdim = ALDER)
-ComparePrikk <- function(data1 = dfny, 
-                         data2 = dfgammel, 
-                         groupdim = ekstradimensjoner){
+ComparePrikk <- function(data1 = dfnew, 
+                         data2 = dfold, 
+                         groupdim = EXTRAdims){
   
   full_join(
     data1 %>% 
@@ -108,17 +108,17 @@ ComparePrikk <- function(data1 = dfny,
 #' 
 #' Check if all values below the censoring limit has been removed. If ok, the function returns a confirmation. If any number below the limit is detected, all rows containing unacceptable values are returned for inspection. 
 #'
-#' @param data1 New KUBE, defaults to dfny 
+#' @param data1 New KUBE, defaults to dfnew 
 #' @param dim Dimension you want to check, defaults to sumTELLER
-#' @param limit Censor limit, the highest unacceptable value of dim. Defaults to `prikkegrense`, defined in input section of the Rmarkdown file. 
+#' @param limit Censor limit, the highest unacceptable value of dim. Defaults to `PRIKKlimit`, defined in input section of the Rmarkdown file. 
 #'
 #' @return
 #' @export
 #'
 #' @examples
-CheckPrikk <- function(data1 = dfny,
-                       dim = prikkevariabel, 
-                       limit = prikkegrense){
+CheckPrikk <- function(data1 = dfnew,
+                       dim = PRIKKval, 
+                       limit = PRIKKlimit){
   
   filtered <- data1[data1[[dim]] <= limit]
   
@@ -133,14 +133,14 @@ CheckPrikk <- function(data1 = dfny,
 #' 
 #' 
 #'
-#' @param data1 new KUBE, defaults to dfny set in INPUT
+#' @param data1 new KUBE, defaults to dfnew set in INPUT
 #' @param ... dimension(s) to group output by
 #'
 #' @return
 #' @export
 #'
 #' @examples
-CompareLandFylke <- function(data1 = dfny, groupdim = ekstradimensjoner, compare = sammenligningsvariabel){
+CompareLandFylke <- function(data1 = dfnew, groupdim = EXTRAdims, compare = COMPAREval){
   
   
   
@@ -168,7 +168,7 @@ CompareLandFylke <- function(data1 = dfny, groupdim = ekstradimensjoner, compare
 #' @export
 #'
 #' @examples
-CompareBydelKommune <- function(data1 = dfny, groupdim = ekstradimensjoner, compare = sammenligningsvariabel) {
+CompareBydelKommune <- function(data1 = dfnew, groupdim = EXTRAdims, compare = COMPAREval) {
   data1 %>% 
     mutate(geolevel = case_when(GEO == 0 ~ "Land",
                                 GEO < 100 ~ "Fylke",

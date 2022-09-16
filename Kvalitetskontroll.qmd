@@ -2,7 +2,6 @@
 title: "Kvalitetskontroll"
 author: "Vegard"
 date: "`r Sys.Date()`"
-lang: nb
 format: 
   html:
     df-print: kable
@@ -17,124 +16,124 @@ TODO
 -   nederst: var alt ok, klikk her: kopierer filen over i NESTTAR-mappe klar for publisering. Må legge inn årstall i input for å finne riktig mappe.
 -   Lage kvalkontroll del 2 for plotting?
 -   Lage mappesystem for lagring av plott
+-   Fikse encodingproblemer
+-   Create documentation in separate file
 
 ```{r}
 #| include: false
 #| message: false
 
- source("https://raw.githubusercontent.com/vegardlysne/KHvalitet/main/R/setup.R")
- source("https://raw.githubusercontent.com/vegardlysne/KHvalitet/main/R/functions.R")
+# GITHUB
+# source("https://raw.githubusercontent.com/vegardlysne/KHvalitet/main/R/setup.R")
+# source("https://raw.githubusercontent.com/vegardlysne/KHvalitet/main/R/functions#.R")
 
-#source("./R/setup.R")
-#source("./R/functions.R")
+# TESTING
+source("./R/setup.R")
+source("./R/functions.R")
 ```
 
 ## Input
 
--   Fyll inn sti til ny KUBE som skal kontrolleres (dfny), og gammel KUBE (dfgammel) som brukes som sammenligningsgrunnlag for deler av kvalitetskontrollen.
+-   Add path to new KUBE to be controlled (dfnew), og gammel KUBE (dfold) som brukes som sammenligningsgrunnlag for deler av kvalitetskontrollen.
+-   `_*dims` refer to dimension columns
+-   `_*val` refer to value columns
+-   `_*limit` refer to thresholds, e.g. limit for PRIKKING
 
-[**Definer:**]{.underline}
+[**Define:**]{.underline}
 
--   **Standarddimensjoner**: Alle standarddimensjoner som finnes i kuben
--   **Eventuelle ekstradimensjoner** (dersom ingen, skal det stå `NULL`)
--   **Prikkevariabel**: Hvilket måtall er det prikket på?
--   **Prikkegrense**: Hva er grensen for det som skal være prikket?
--   **Sammenligningsvariabel**: Hvilken variabel som skal brukes for å se om kommuner summerer til fylke, og fylke summerer til land
-
-Kjør deretter hele kodechunken for å lese inn datafilene
+-   **STANDARDdims**: All standard dimensions in KUBE
+-   **EXTRAdims** (If none, write `NULL`)
+-   **PRIKKval**: The target number for PRIKKING
+-   **PRIKKlimit**: Hva er grensen for det som skal være prikket?
+-   **COMPAREval**: Hvilken variabel som skal brukes for å se om kommuner summerer til fylke, og fylke summerer til land
 
 ```{r}
 #| include: false
+dfnew <- "F:/Forskningsprosjekter/PDB 2455 - Helseprofiler og til_/PRODUKSJON/PRODUKTER/KUBER/KOMMUNEHELSA/DATERT/csv/KUHR_2022-09-01-09-03.csv"
+dfold <- "F:/Forskningsprosjekter/PDB 2455 - Helseprofiler og til_/PRODUKSJON/PRODUKTER/KUBER/KOMMUNEHELSA/KH2022NESSTAR/KUHR_2022-02-09-17-50.csv"
 
-dfny <- "F:/Forskningsprosjekter/PDB 2455 - Helseprofiler og til_/PRODUKSJON/PRODUKTER/KUBER/KOMMUNEHELSA/DATERT/csv/KUHR_2022-09-01-09-03.csv"
-dfgammel <- "F:/Forskningsprosjekter/PDB 2455 - Helseprofiler og til_/PRODUKSJON/PRODUKTER/KUBER/KOMMUNEHELSA/KH2022NESSTAR/KUHR_2022-02-09-17-50.csv"
+STANDARDdims <- c("GEO", "AAR", "KJONN", "ALDER")
+EXTRAdims <- c("KODEGRUPPE") # If no additional dimensions, this should be "EXTRAdims <- NULL"
+PRIKKval <- "sumTELLER"
+PRIKKlimit <- 8
+COMPAREval <- "TELLER"
 
-standarddimensjoner <- c("GEO", "AAR", "KJONN", "ALDER")
-ekstradimensjoner <- c("KODEGRUPPE") # Hvis ingen, sett til NULL 
-prikkevariabel <- "sumTELLER"
-prikkegrense <- 8
-sammenligningsvariabel <- "TELLER"
-
-#-----IKKE GJ?R NOE UNDER HER-----
-dfny <- fread(dfny)
-dfgammel <- fread(dfgammel)
+#-----NO INPUT BELOW THIS-----
+dfnew <- fread(dfnew)
+dfold <- fread(dfold)
 ```
 
-## Se p? data
+## Inspect data manually
 
--   Disse kodene kan brukes for å se på de to datafilene.
--   Nyttig for å dobbeltsjekke input av ekstradim, prikkevariabel, osv.
--   Bare for interaktiv bruk
+-   Useful codes to initially inspect KUBE
+-   For interactive use only
 
 ```{r}
 #| include: false 
 #| eval: false
 
-# Scroll gjennom datasettet
-
+# Scroll through KUBE
 dfnew
-dfold
 
-# Liste opp variabelnavn
+# List variable names
 names(dfnew)
 
-# Oppsummering av innholdet i kubene
+# General summary
 summary(dfnew)
-summary(dfold)
 ```
 
-# 1. Sammenligning av niv?er for dimensjoner
+# 1. Compare dimensions
 
--   Dimensjoner definert under INPUT som standarddimensjoner og ekstradimensjoner sjekkes her.
+-   The function compares the levels within dimensions defined under INPUT as `STANDARDdims`and `EXTRAdims`.
 
 [**Output:**]{.underline}
 
--   Antallet niv?er i dimensjonen (ny KUBE)
--   Nye niv?er, som ikke fantes i forrige KUBE
--   Utg?tte niv?er, som fantes i forrige KUBE men ikke i den nye. **NB: Skulle disse v?rt her?**
+-   Number of levels in each dimension (new KUBE)
+-   New levels, which did not exist in previous KUBE
+-   Expired levels, which existed in previous KUBE, but not in the new KUBE. **NB: Should these be present?**
 
 ```{r}
 #| message: false
 CompareDims()
 ```
 
-# 2. Sammenligne antall prikker
+# 2. Compare number of PRIKK
 
--   Funksjonen kalkulerer antall prikker i ny og gammel KUBE
--   Output er en tabell med antall prikker total og gruppert p? type SPVFLAGG og **ekstradimensjoner** definert under INPUT
--   Tabellen oppgir absolutt og relativ forskjell sammenlignet med gammel KUBE innad i hver gruppering
+-   Calculates the amount of cencored observations in new and old KUBE, grouped by type of SPVFLAGG and the `EXTRAdims` as defined in `Input`. If `EXTRAdims <- NULL`, output is only grouped by type of SPVFLAGG
+-   Absolute (new - old KUBE) and relative (new/old cube) difference is calculated and given per group.
 
 ```{r}
 ComparePrikk()
 ```
 
-# 3. Sjekk om alle verdier under prikkegrense er prikket
+# 3. Are all values below the limit cencored? 
 
--   **Prikkevariabel** og **prikkegrense** er definert ?verst i dokumentet, under INPUT
--   Dersom alle verdier lik eller under prikkegrense i valgte dimensjon er prikket, bekreftes dette
--   Dersom noen verdier er lik eller under prikkegrense, printes alle aktuelle rader fra ny KUBE for inspeksjon
+-   Checks whether all values of `PRIKKval` \<= `PRIKKlimit`, as defined in `Input`
+-   If everything is ok, the function returns a confirmation.
+-   If some values at or below PRIKKlimit is present, the corresponding rows are printed for inspection.
 
 ```{r}
 CheckPrikk()
 ```
 
-# 4. Sjekke om sum av fylker blir land
+# 4. Does FYLKE sum to LAND? 
 
--   **Sammenligningsvariabel** og **ekstradimensjoner** er definert i INPUT
--   Summerer sammenligningsvariabelen for hver undergruppe av ekstradimensjonen(e) for fylker og landet.
--   Beregner absolutt (land - fylke) og relativ (land / fylke) forskjell.
--   Rangerer output p? synkende relativ forskjell, disse b? v?re s? n?r 1 som mulig. Ved perfekt samsvar vil relativ v?re 1.0
+-   Summarise `COMPAREval` for FYLKE and LAND, grouped by `EXTRAdims`
 
-\### TODO: Gi mulighet for ? gruppere ogs? p? utvalgte standarddimensjoner.
+-   Calculate the absolute (LAND - FYLKE) and relative (LAND/FYLKE) difference
+
+-   Orders the input according to the relative difference.
+
+(### TODO: Add possibility to group also by other variables, such as ALDER)
 
 ```{r}
-CompareLandFylke() %>% datatable()
+CompareLandFylke()
 ```
 
 # Sjekke om sum av bydel blir kommune
 
--   **Sammenligningsvariabel** og **ekstradimensjoner** er definert i INPUT
--   Summerer sammenligningsvariabelen for hver undergruppe av ekstradimensjonen(e) for fylker og landet.
+-   **COMPAREval** og **EXTRAdims** er definert i INPUT
+-   Summerer COMPAREvalen for hver undergruppe av ekstradimensjonen(e) for fylker og landet.
 -   Beregner absolutt (Kommune - Bydel) og relativ (Kommune / bydel) forskjell.
 -   Rangerer output p? synkende relativ forskjell, disse b? v?re s? n?r 1 som mulig. Ved perfekt samsvar vil relativ v?re 1.0
 
