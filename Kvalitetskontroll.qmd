@@ -49,8 +49,8 @@ source("./R/functions.R")
 
 ```{r}
 #| include: false
-dfnew <- "F:/Forskningsprosjekter/PDB 2455 - Helseprofiler og til_/PRODUKSJON/PRODUKTER/KUBER/KOMMUNEHELSA/DATERT/csv/KUHR_2022-09-01-09-03.csv"
-dfold <- "F:/Forskningsprosjekter/PDB 2455 - Helseprofiler og til_/PRODUKSJON/PRODUKTER/KUBER/KOMMUNEHELSA/KH2022NESSTAR/KUHR_2022-02-09-17-50.csv"
+dfnew <- ReadFile("KUHR_2022-09-02", year = "DATERT")
+dfold <- ReadFile("KUHR", year = 2022)
 
 STANDARDdims <- c("GEO", "AAR", "KJONN", "ALDER")
 EXTRAdims <- c("KODEGRUPPE") # If no additional dimensions, this should be "EXTRAdims <- NULL"
