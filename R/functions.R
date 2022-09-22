@@ -189,10 +189,10 @@ CheckPrikk <- function(data1 = dfnew,
 
 #' CompareLandFylke
 #' 
-#' 
 #'
 #' @param data1 new KUBE, defaults to dfnew set in INPUT
-#' @param ... dimension(s) to group output by
+#' @param groupdim 
+#' @param compare 
 #'
 #' @return
 #' @export
@@ -224,7 +224,8 @@ CompareLandFylke <- function(data1 = dfnew, groupdim = GROUPdims, compare = COMP
 #' CompareBydelKommune
 #'
 #' @param data1 
-#' @param ... 
+#' @param groupdim 
+#' @param compare 
 #'
 #' @return
 #' @export
@@ -251,6 +252,16 @@ CompareBydelKommune <- function(data1 = dfnew, groupdim = GROUPdims, compare = C
     arrange(desc(relative))
 }
 
+#' Title
+#'
+#' @param data1 
+#' @param groupdim 
+#' @param compare 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 CompareOslo <- function(data1 = dfnew, groupdim = GROUPdims, compare = COMPAREval){
   data1 %>% 
     filter(GEO %in% c("3", "301")) %>% 

@@ -4,7 +4,6 @@ library(rlang)
 library(tidyr)
 library(stringr)
 library(purrr)
-library(DT)
 
 
 
